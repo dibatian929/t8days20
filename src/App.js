@@ -271,7 +271,7 @@ const DEFAULT_SETTINGS = {
 
 // --- 2. 基础组件 ---
 
-// [FIXED] MetaUpdater: Added Pinterest Verification Logic
+// [修改] MetaUpdater: 移除了无效的 Pinterest 注入代码，仅保留 Favicon/Title
 const MetaUpdater = ({ profile }) => {
   useEffect(() => {
     if (profile?.siteTitle) document.title = profile.siteTitle;
@@ -285,18 +285,6 @@ const MetaUpdater = ({ profile }) => {
       }
       link.href = profile.faviconUrl;
     }
-
-    // [CRITICAL] Pinterest Verification Tag Injection
-    const pinterestTagId = "pinterest-domain-verify";
-    let metaTag = document.getElementById(pinterestTagId);
-    if (!metaTag) {
-      metaTag = document.createElement("meta");
-      metaTag.name = "p:domain_verify";
-      metaTag.id = pinterestTagId;
-      document.head.appendChild(metaTag);
-    }
-    // Set the specific verification code requested
-    metaTag.content = "a7485ec71cbfe9feab2ebc8128e797db";
   }, [profile]);
   return null;
 };
@@ -574,7 +562,7 @@ const HeroSlideshow = ({ slides, onIndexChange, onLinkClick }) => {
   };
 
   return (
-    <div className="absolute inset-0 w-full h-full bg-neutral-900 overflow-hidden">
+    <div className="absolute inset-0 w-full h-full bg-neutral-900 overflow-hidden z-0">
       {slides.map((slide, index) => {
         const isActive = index === currentIndex;
         return (
@@ -622,7 +610,7 @@ const AboutPage = ({ profile, lang, onClose }) => {
     ...(profile.content?.[lang] || {}),
   };
   return (
-    <div className="fixed inset-0 z-50 bg-neutral-950 overflow-y-auto animate-fade-in-up no-scrollbar">
+    <div className="fixed inset-0 z-30 bg-neutral-950 overflow-y-auto animate-fade-in-up no-scrollbar">
       <div className="min-h-screen flex flex-col md:flex-row">
         <div className="w-full md:w-1/2 h-[50vh] md:h-screen relative">
           <img
@@ -793,7 +781,6 @@ const ImmersiveLightbox = ({
     }
   };
 
-  // 阻止按钮点击冒泡，防止触发滑动逻辑
   const preventPropagation = (e) => e.stopPropagation();
 
   if (!currentImage) return null;
@@ -1334,7 +1321,6 @@ const PhotosManager = ({
 
   return (
     <div className="space-y-12">
-      {/* Upload Area */}
       <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-xl sticky top-0 z-20 shadow-xl">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
           <div className="md:col-span-1">
@@ -1390,7 +1376,6 @@ const PhotosManager = ({
         </button>
       </div>
 
-      {/* Projects List */}
       <div className="space-y-8 pb-24">
         <div className="flex justify-end">
           <button
@@ -2499,7 +2484,7 @@ const AppContent = () => {
       unsubPhotos();
       unsubSettings();
     };
-  }, [user]); // Still re-run on user change for admin rights
+  }, [user]); // Re-subscribe if user status changes (e.g. becomes admin)
 
   const handleLoginAttempt = (pass) => {
     const correctPass =
